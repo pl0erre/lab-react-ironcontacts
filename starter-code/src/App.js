@@ -1,46 +1,61 @@
 import React, { Component } from "react";
 import "./App.css";
-import Celeb from "./Components/Celeb";
+import Celebr from "./Components/Celebr";
 import celebrities from './contacts.json'
 
 class App extends Component {
 
-  constructor() {
-    super();
-    this.state = {
-      celebrities: celebrities,
-      celebCopy: [...celebrities],
-      search: ""
-    }
+  constructor(props) {
+    super(props)
   }
 
-  searchCeleb(event) {
-    this.setState({search: event.target.value})
+  state = {
+    celebrities: celebrities,
+    searchedCelebs: celebrities
   }
+
+  search = (event) => {
+
+    let searchTerm = event.target.value;
+    let searchedCelebs = this.state.celebrities.filter((celeb) => (
+      celeb.name.indexOf(searchTerm) >= 0
+    ))
+
+    this.setState({searchedCelebs: searchedCelebs})
+  }
+
+  delete = (index) => {
+    let celebritiesCopy = [...this.state.searchedCelebs];
+    celebritiesCopy.splice(index, 1);
+    this.setState({searchedCelebs: celebritiesCopy});
+  }
+
 
   render() {
 
-    let filteredCelebs = this.state.celebCopy.filter((celeb) => {
-      return celeb.name.indexOf(this.state.search !== -1)
+    let celebrityComponents = this.state.searchedCelebs.map((celeb, index) => {
+      return (
+        <Celebr
+          index={index}
+          deleteCeleb={this.delete}
+          name={celeb.name}
+          image={celeb.pictureUrl}
+          popularity={celeb.popularity}
+        />
+      )
     });
-
-    let singleCeleb = filteredCelebs.map((celeb) => 
-      <Celeb 
-        name={celeb.name}
-        image={celeb.pictureUrl}
-        popularity={celeb.popularity}
-      />
-    )
     
     return (
       <div className="App">
         <header className="App-header">
         </header>
+
         <h2>Checkout these celebrities</h2>
-        <input onChange={this.searchCeleb.bind(this)} value={this.state.search} type="text" placeholder="Search a Celebrity"></input>
+        <input onChange={this.search} type="text" placeholder="Search a Celebrity" />
         <div className="cardContainer">
-          {singleCeleb}
+          {celebrityComponents}
         </div>
+
       </div>
     );
   }
